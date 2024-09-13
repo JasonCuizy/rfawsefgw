@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Load Code from URL Parameter</title>
 
   <!-- 引入 Highlight.js 样式和脚本 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/styles/monokai-sublime.min.css">
@@ -11,11 +10,22 @@
   <script>hljs.highlightAll();</script>
 
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* 隐藏滚动条 */
       font-family: Arial, sans-serif;
       background-color: #2e2e2e;
       color: #f8f8f2;
-      padding: 20px;
+    }
+
+    #container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 600px; /* 初始固定宽度 */
+      height: 300px; /* 初始固定高度 */
+      background-color: #2e2e2e;
     }
 
     pre {
@@ -24,15 +34,15 @@
       border-radius: 5px;
       border: 1px solid #ddd;
       overflow: hidden;
-      max-height: 200px; /* 初始显示高度 */
+      max-height: 100%; /* 允许内容显示在容器中 */
+      box-sizing: border-box;
       position: relative;
-      transition: max-height 0.5s ease;
+      margin: 0;
     }
 
     /* 当展开时显示全部内容并允许滚动 */
     pre.expanded {
-      max-height: 600px; /* 展开后可滚动显示内容 */
-      overflow: auto;
+      max-height: none; /* 展开后显示全部内容 */
     }
 
     code {
@@ -62,16 +72,16 @@
 </head>
 <body>
 
-  <h1>Load Code from URL Parameter Example</h1>
-  
-  <!-- 代码块 -->
-  <pre id="codeBlock" class="language-csharp">
-<code id="codeContent">
-// Loading code...
-</code>
-  <!-- 展开按钮 -->
-  <div class="show-more-btn" id="toggleButton" onclick="toggleCode()">Show More</div>
-  </pre>
+  <div id="container">
+    <!-- 代码块 -->
+    <pre id="codeBlock" class="language-csharp">
+      <code id="codeContent">
+        // Loading code...
+      </code>
+      <!-- 展开按钮 -->
+      <div class="show-more-btn" id="toggleButton" onclick="toggleCode()">Show More</div>
+    </pre>
+  </div>
 
   <script>
     // 从查询字符串中获取参数
@@ -101,9 +111,17 @@
       if (codeBlock.classList.contains('expanded')) {
         codeBlock.classList.remove('expanded');
         button.textContent = 'Show More';
+        document.getElementById('container').style.width = '600px'; // 初始宽度
+        document.getElementById('container').style.height = '300px'; // 初始高度
       } else {
         codeBlock.classList.add('expanded');
         button.textContent = 'Show Less';
+        // 更新容器大小为代码块大小
+        var codeContent = document.getElementById('codeContent');
+        var codeHeight = codeContent.scrollHeight;
+        var codeWidth = codeContent.scrollWidth;
+        document.getElementById('container').style.width = codeWidth + 'px';
+        document.getElementById('container').style.height = codeHeight + 'px';
       }
     }
 
