@@ -19,13 +19,11 @@
       color: #f8f8f2;
     }
 
-    #container {
-      position: absolute;
-      top: 0;
-      left: 0;
+    body {
       width: 600px; /* 初始固定宽度 */
       height: 300px; /* 初始固定高度 */
       background-color: #2e2e2e;
+      position: relative;
     }
 
     pre {
@@ -36,7 +34,6 @@
       overflow: hidden;
       max-height: 100%; /* 允许内容显示在容器中 */
       box-sizing: border-box;
-      position: relative;
       margin: 0;
     }
 
@@ -72,16 +69,14 @@
 </head>
 <body>
 
-  <div id="container">
-    <!-- 代码块 -->
-    <pre id="codeBlock" class="language-csharp">
-      <code id="codeContent">
-        // Loading code...
-      </code>
-      <!-- 展开按钮 -->
-      <div class="show-more-btn" id="toggleButton" onclick="toggleCode()">Show More</div>
-    </pre>
-  </div>
+  <!-- 代码块 -->
+  <pre id="codeBlock" class="language-csharp">
+    <code id="codeContent">
+      // Loading code...
+    </code>
+    <!-- 展开按钮 -->
+    <div class="show-more-btn" id="toggleButton" onclick="toggleCode()">Show More</div>
+  </pre>
 
   <script>
     // 从查询字符串中获取参数
@@ -107,21 +102,21 @@
     function toggleCode() {
       var codeBlock = document.getElementById('codeBlock');
       var button = document.getElementById('toggleButton');
+      var codeContent = document.getElementById('codeContent');
       // 切换展开状态
       if (codeBlock.classList.contains('expanded')) {
         codeBlock.classList.remove('expanded');
         button.textContent = 'Show More';
-        document.getElementById('container').style.width = '600px'; // 初始宽度
-        document.getElementById('container').style.height = '300px'; // 初始高度
+        document.body.style.width = '600px'; // 初始宽度
+        document.body.style.height = '300px'; // 初始高度
       } else {
         codeBlock.classList.add('expanded');
         button.textContent = 'Show Less';
-        // 更新容器大小为代码块大小
-        var codeContent = document.getElementById('codeContent');
+        // 更新 body 大小为代码块大小
         var codeHeight = codeContent.scrollHeight;
         var codeWidth = codeContent.scrollWidth;
-        document.getElementById('container').style.width = codeWidth + 'px';
-        document.getElementById('container').style.height = codeHeight + 'px';
+        document.body.style.width = codeWidth + 'px';
+        document.body.style.height = codeHeight + 'px';
       }
     }
 
