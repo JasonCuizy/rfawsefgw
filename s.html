@@ -1,43 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Load Code from URL Parameter</title>
 
   <!-- 引入 Highlight.js 样式和脚本 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/styles/monokai-sublime.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
 
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #2e2e2e;
+      background-color: #916666;
       color: #f8f8f2;
-      padding: 20px;
+      margin: 0px;
+      padding: 0px;
     }
 
     pre {
-      background-color: #272822;
-      padding: 15px;
+      background-color: #acc81f;
+      margin: 0px;
+      padding: 0px;
       border-radius: 5px;
-      border: 1px solid #ddd;
       overflow: hidden;
-      max-height: 200px; /* 初始显示高度 */
+      max-height: 200px;
+      /* 初始显示高度 */
       position: relative;
       transition: max-height 0.5s ease;
     }
 
-    /* 当展开时显示全部内容并允许滚动 */
-    pre.expanded {
-      max-height: 600px; /* 展开后可滚动显示内容 */
-      overflow: auto;
-    }
-
     code {
       display: block;
-      white-space: pre-wrap; /* 防止长代码超出 */
     }
 
     /* 按钮样式 */
@@ -49,21 +45,15 @@
       background-color: rgba(0, 0, 0, 0.7);
       color: #fff;
       text-align: center;
-      padding: 5px 0;
+      padding: 10px 0;
       cursor: pointer;
       display: none;
     }
-
-    /* 当代码块被限制高度时显示按钮 */
-    pre:not(.expanded) .show-more-btn {
-      display: block;
-    }
   </style>
 </head>
-<body>
 
-  <h1>Load Code from URL Parameter Example</h1>
-  
+<body id="page">
+
   <!-- 代码块 -->
   <pre id="codeBlock" class="language-csharp">
 <code id="codeContent">
@@ -74,6 +64,11 @@
   </pre>
 
   <script>
+
+    // 全局变量
+    let globalContentWidth = 0;
+    let globalContentHeight = 0;
+
     // 从查询字符串中获取参数
     function getQueryParam(param) {
       const urlParams = new URLSearchParams(window.location.search);
@@ -85,8 +80,16 @@
       fetch(url)
         .then(response => response.text())
         .then(code => {
-          document.getElementById('codeContent').textContent = code;
-          hljs.highlightElement(document.getElementById('codeContent'));
+          const codeElement = document.getElementById('codeContent');
+          codeElement.textContent = code;
+          hljs.highlightElement(codeElement);
+
+          globalContentWidth = codeElement.scrollWidth;
+          globalContentHeight = codeElement.scrollHeight; // 获取元素的实际高度
+          console.log(globalContentWidth + "x" + globalContentHeight)
+
+          var button = document.getElementById('toggleButton');
+          button.style.display = 'block';
         })
         .catch(error => {
           document.getElementById('codeContent').textContent = '// Error loading code';
@@ -97,26 +100,50 @@
     function toggleCode() {
       var codeBlock = document.getElementById('codeBlock');
       var button = document.getElementById('toggleButton');
-      // 切换展开状态
-      if (codeBlock.classList.contains('expanded')) {
-        codeBlock.classList.remove('expanded');
-        button.textContent = 'Show More';
-      } else {
-        codeBlock.classList.add('expanded');
-        button.textContent = 'Show Less';
-      }
+
+      //设置宽度
+      changePageWidth(globalContentWidth);
+      // 设置高度
+      changeMaxHeight(globalContentHeight);
+
+      //隐藏按钮
+      button.style.display = 'none';
+    }
+
+    function changeMaxHeight(newHeight) {
+      // 直接设置元素的内联样式
+      const box = document.getElementById('codeBlock');
+      box.style.maxHeight = newHeight + 'px';
+    }
+
+    //设置页面的宽
+    function changePageWidth(newWidth) {
+      const box = document.getElementById('page');
+      box.style.width = newWidth + 'px';
     }
 
     // 在页面加载时调用函数，从外部链接加载代码
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
       const externalCodeUrl = getQueryParam('codeUrl'); // 从 URL 查询字符串中获取 codeUrl 参数
       if (externalCodeUrl) {
         loadExternalCode(externalCodeUrl); // 使用查询字符串中的链接加载代码
       } else {
         document.getElementById('codeContent').textContent = '// No code URL provided';
       }
+      const iframeWidth = getQueryParam('iframeWidth');
+      if (iframeWidth) {
+        // 设置高度
+        changePageWidth(iframeWidth);
+      }
+      const iframeHeight = getQueryParam('iframeHeight');
+      if (iframeHeight) {
+        // 设置高度
+        changeMaxHeight(iframeHeight);
+      }
     });
+
   </script>
 
 </body>
+
 </html>
