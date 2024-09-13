@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Embedded Page</title>
 
   <!-- 引入 Highlight.js 样式和脚本 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/styles/monokai-sublime.min.css">
@@ -13,17 +14,10 @@
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden; /* 隐藏滚动条 */
       font-family: Arial, sans-serif;
       background-color: #2e2e2e;
       color: #f8f8f2;
-    }
-
-    body {
-      width: 600px; /* 初始固定宽度 */
-      height: 300px; /* 初始固定高度 */
-      background-color: #2e2e2e;
-      position: relative;
+      overflow: hidden; /* 禁止滚动 */
     }
 
     pre {
@@ -32,104 +26,91 @@
       border-radius: 5px;
       border: 1px solid #ddd;
       overflow: hidden;
-      max-height: 100%; /* 允许内容显示在容器中 */
       box-sizing: border-box;
       margin: 0;
     }
 
-    /* 当展开时显示全部内容并允许滚动 */
-    pre.expanded {
-      max-height: none; /* 展开后显示全部内容 */
-    }
-
     code {
       display: block;
-      white-space: pre-wrap; /* 防止长代码超出 */
+      white-space: pre-wrap;
     }
 
-    /* 按钮样式 */
     .show-more-btn {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
       background-color: rgba(0, 0, 0, 0.7);
       color: #fff;
       text-align: center;
       padding: 5px 0;
       cursor: pointer;
-      display: none;
-    }
-
-    /* 当代码块被限制高度时显示按钮 */
-    pre:not(.expanded) .show-more-btn {
-      display: block;
     }
   </style>
+
+  <script>
+    function adjustIframeSize() {
+      // 发送当前页面的宽度和高度给父页面
+      const height = document.documentElement.scrollHeight;
+      const width = document.documentElement.scrollWidth;
+
+      // 使用 postMessage 发送信息
+      window.parent.postMessage({ height: height, width: width }, '*');
+    }
+
+    // 页面加载完成后调整 iframe 大小
+    window.onload = function () {
+      adjustIframeSize();
+    };
+
+    // 可根据内容变化动态调整 iframe 大小
+    window.addEventListener('resize', adjustIframeSize);
+  </script>
 </head>
 <body>
-
-  <!-- 代码块 -->
   <pre id="codeBlock" class="language-csharp">
     <code id="codeContent">
       // Loading code...
     </code>
-    <!-- 展开按钮 -->
     <div class="show-more-btn" id="toggleButton" onclick="toggleCode()">Show More</div>
   </pre>
 
   <script>
-    // 从查询字符串中获取参数
     function getQueryParam(param) {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(param);
     }
 
-    // 从外部 URL 加载代码
     function loadExternalCode(url) {
       fetch(url)
         .then(response => response.text())
         .then(code => {
           document.getElementById('codeContent').textContent = code;
           hljs.highlightElement(document.getElementById('codeContent'));
+          adjustIframeSize(); // 每次加载完成代码时调整 iframe 大小
         })
         .catch(error => {
           document.getElementById('codeContent').textContent = '// Error loading code';
         });
     }
 
-    // 切换展开状态
     function toggleCode() {
       var codeBlock = document.getElementById('codeBlock');
       var button = document.getElementById('toggleButton');
-      var codeContent = document.getElementById('codeContent');
-      // 切换展开状态
       if (codeBlock.classList.contains('expanded')) {
         codeBlock.classList.remove('expanded');
         button.textContent = 'Show More';
-        document.body.style.width = '600px'; // 初始宽度
-        document.body.style.height = '300px'; // 初始高度
       } else {
         codeBlock.classList.add('expanded');
         button.textContent = 'Show Less';
-        // 更新 body 大小为代码块大小
-        var codeHeight = codeContent.scrollHeight;
-        var codeWidth = codeContent.scrollWidth;
-        document.body.style.width = codeWidth + 'px';
-        document.body.style.height = codeHeight + 'px';
       }
+      adjustIframeSize(); // 切换时调整 iframe 大小
     }
 
-    // 在页面加载时调用函数，从外部链接加载代码
     document.addEventListener("DOMContentLoaded", function() {
-      const externalCodeUrl = getQueryParam('codeUrl'); // 从 URL 查询字符串中获取 codeUrl 参数
+      const externalCodeUrl = getQueryParam('codeUrl');
       if (externalCodeUrl) {
-        loadExternalCode(externalCodeUrl); // 使用查询字符串中的链接加载代码
+        loadExternalCode(externalCodeUrl);
       } else {
         document.getElementById('codeContent').textContent = '// No code URL provided';
       }
     });
   </script>
-
 </body>
 </html>
